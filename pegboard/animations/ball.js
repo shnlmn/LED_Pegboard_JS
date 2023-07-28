@@ -41,12 +41,14 @@ class pbAnimation extends Pegboard {
 
   display() {
     let scaling = 1 / (this.scale * this.peg_spacing);
+    // let scaling = 1 / (this.scale * this.peg_spacing);
     let animCanvas = createGraphics(
       this.display_w * scaling,
       this.display_h * scaling
     );
     let active_pegs = createGraphics(this.display_w, this.display_h);
     clear();
+    animCanvas.background(55)
 
     ///// count active pegs to determine animation.
     this.active_D_count = Object.values(this.peg_D_state).filter(
@@ -64,8 +66,8 @@ class pbAnimation extends Pegboard {
 
     ///// light up active peg - this ignores scaling using active_pegs canvas
     for (const [k, v] of Object.entries(this.active_nodes)) {
-      active_pegs.fill("#a00");
-      active_pegs.stroke("#a00");
+      active_pegs.fill("#fff");
+      active_pegs.stroke(0,0);
       active_pegs.circle(
         this.peg_coords[k][0],
         this.peg_coords[k][1],
@@ -110,8 +112,7 @@ class pbAnimation extends Pegboard {
 
       ///// scale to_coord
       to_coord = [to_coord[0] * scaling, to_coord[1] * scaling];
-      // print("to coord", to_coord[0] * scaling, to_cooVrd[1] * scaling)
-      // print(this.location)
+
       ///// create a vector from the current location to the next node
       let travel_vector = animCanvas.createVector(
         to_coord[0] - this.location.x,
@@ -130,14 +131,14 @@ class pbAnimation extends Pegboard {
       ///// prepare vector for movement
       travel_vector.normalize();
       travel_vector.setMag(movement_speed);
-      
+
       ///// update ball location by travel vector
       this.location.add(travel_vector);
 
       animCanvas.fill("#0f0");
       animCanvas.circle(
-        this.location.x ,
-        this.location.y ,
+        this.location.x,
+        this.location.y,
         this.ball_diameter * scaling
       );
       // this.peg_display(animCanvas);
@@ -145,12 +146,5 @@ class pbAnimation extends Pegboard {
     image(animCanvas, 0, 0, this.display_w, this.display_h);
     image(animCanvas, 0, 0);
     image(active_pegs, 0, 0);
-  }
-  key_pressed(e) {
-    if (e.get_native().getKeyCode() == 8) {
-      this.text.pop();
-    } else {
-      this.text += e.get_key().upper();
-    }
   }
 }

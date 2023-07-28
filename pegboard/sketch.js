@@ -2,12 +2,15 @@ function setup() {
   animation = new pbAnimation();
   pegboard = new Pegboard();
   pixel_mask = null;
-  // let ball = [];
-  print(pegboard)
 
-
-  createCanvas(pegboard.display_w, pegboard.display_h).position(...pegboard.canvas_position);
-  pg = createGraphics(pegboard.display_w, pegboard.display_h);
+  createCanvas(pegboard.display_w, pegboard.display_h).position(
+    ...pegboard.canvas_position
+  );
+  let pegCnv = createCanvas(pegboard.display_w, pegboard.display_h).position(
+    ...pegboard.canvas_position
+  );
+  // new Canvas(animation.display_w, animation.display_h, "pixelated x4");
+  // pg = createGraphics(pegboard.display_w, pegboard.display_h);
   // pg.background(255, 0, 0);
   // pg.fill(0);
   // pg.strokeWeight(0);
@@ -19,8 +22,10 @@ function setup() {
 
 function draw() {
   // fill(155);
-  noSmooth();
+  // noSmooth();
   this.animation.display();
+  // this.animation.paddles.draw();
+  // this.animation.balls.draw();
   this.pegboard.display_pegs();
   // this.pegboard.display_pixels();
 }

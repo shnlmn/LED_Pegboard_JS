@@ -46,7 +46,7 @@ class Pegboard {
         this.peg_A_inputs[k] = v;
       }
     }
-    // print("D input", this.peg_D_inputs);
+    print("D input", this.peg_D_inputs);
 
     // set up state objects to check for active pegs
     this.peg_D_state = {};
@@ -74,47 +74,47 @@ class Pegboard {
     image(cnvMask, 0, 0);
   }
 
-//   display_pixels() {
-//     // circle(100, 100, 100)
-//     let pix_color = [];
-//     Object.entries(this.peg_coords).forEach((peg) => {
-//       pix_color.push(get(peg[1][0], peg[1][1]));
-//       //   print(pix_color);dd
-//     });
-//     // clear();
-//     for (
-//       let index = 0;
-//       index < Object.entries(this.peg_coords).length;
-//       index++
-//     ) {
-// 		    fill("#Fff")
-//       circle(
-//         this.peg_coords[index][0],
-//         this.peg_coords[index][1],
-//         this.board_peg_size
-//       );
-//       fill(pix_color[index]);
-//       circle(
-//         this.peg_coords[index][0],
-//         this.peg_coords[index][1],
-//         this.board_peg_size
-//       );
-//     }
-//   }
-  //   get_status() {
-  //     last_hall_active = this.hall_active;
-  //     this.hall_active = Object.values(this.read_sensor_inputs()).filter(
-  //       (element) => element === false
-  //     ).length;
-  // 	if (this.hall_active != last_hall_active){
-  // 		return(read_sensor_inputs())
-  // 	} else {
-  // 		return false
-  // 	}
-  //   }
-  //   read_sensor_inputs() { // Stand-in for actual sensor reading
-  //     return (this.peg_D_state, this.peg_A_state);
-  //   }
+  display_pixels() {
+    // circle(100, 100, 100)
+    let pix_color = [];
+    Object.entries(this.peg_coords).forEach((peg) => {
+      pix_color.push(get(peg[1][0], peg[1][1]));
+      //   print(pix_color);dd
+    });
+    // clear();
+    for (
+      let index = 0;
+      index < Object.entries(this.peg_coords).length;
+      index++
+    ) {
+		    fill("#Fff")
+      circle(
+        this.peg_coords[index][0],
+        this.peg_coords[index][1],
+        this.board_peg_size
+      );
+      fill(pix_color[index]);
+      circle(
+        this.peg_coords[index][0],
+        this.peg_coords[index][1],
+        this.board_peg_size
+      );
+    }
+  }
+    get_status() {
+      last_hall_active = this.hall_active;
+      this.hall_active = Object.values(this.read_sensor_inputs()).filter(
+        (element) => element === false
+      ).length;
+  	if (this.hall_active != last_hall_active){
+  		return(read_sensor_inputs())
+  	} else {
+  		return false
+  	}
+    }
+    read_sensor_inputs() { // Stand-in for actual sensor reading
+      return (this.peg_D_state, this.peg_A_state);
+    }
   get_peg_coords() {
     return this.peg_coords;
   }
