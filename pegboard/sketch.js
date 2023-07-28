@@ -3,11 +3,10 @@ function setup() {
   pegboard = new Pegboard();
   pixel_mask = null;
   // let ball = [];
+  print(pegboard)
 
 
   createCanvas(pegboard.display_w, pegboard.display_h).position(...pegboard.canvas_position);
-
-  background(55);
   pg = createGraphics(pegboard.display_w, pegboard.display_h);
   // pg.background(255, 0, 0);
   // pg.fill(0);
@@ -19,9 +18,11 @@ function setup() {
 }
 
 function draw() {
-  fill(155);
-  this.pegboard.display_pegs();
+  // fill(155);
+  noSmooth();
   this.animation.display();
+  this.pegboard.display_pegs();
+  // this.pegboard.display_pixels();
 }
 
 function mouseClicked(e) {
