@@ -1,7 +1,8 @@
 let pegboard;
+p5.disableFriendlyErrors = true;
 function setup() {
   this.animation = new pbAnimation();
-  // Pegboard.preload(); // preload background image
+  Pegboard.preload(); // preload background image
   this.pegboard = new Pegboard();
   createCanvas(this.pegboard.display_w, this.pegboard.display_h).position(
     ...this.pegboard.canvas_position

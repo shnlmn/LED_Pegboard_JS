@@ -15,7 +15,8 @@ class pbAnimation extends Pegboard {
     this.active_A_count = 0;
     this.peg_coords = this.get_peg_coords();
     this.particles = new Group();
-    this.particles.d = this.board_peg_size;
+    this.particles.d = this.board_peg_size*3;
+    this.particles.strokeWeight = 0;
     this.cannons = new Group();
     this.cannons.rotationSpeed = 5;
     this.cannons.color = "red";
@@ -29,19 +30,18 @@ class pbAnimation extends Pegboard {
     this.cannonballs.strokeWeight = 0;
     this.cannonballs.d = this.board_peg_size * 8;
     world.gravity.y = 1;
-    for (let i = 0; i < 100; i++) {
-      let x = ~~(Math.random() * this.display_w);
-      let y = ~~(Math.random() * this.display_h);
-      let ball = new this.balls.Sprite(x, y);
-      ball.strokeWeight = 0;
-      ball.friction = 0.01;
-    }
+    // for (let i = 0; i < 100; i++) {
+    //   let x = ~~(Math.random() * this.display_w);
+    //   let y = ~~(Math.random() * this.display_h);
+    //   let ball = new this.balls.Sprite(x, y);
+    //   ball.strokeWeight = 0;
+    //   ball.friction = 0.01;
+    // }
   }
 
   pop(ball) {
-    for (let i = 0; i < 40; i++) {
+    for (let i = 0; i < 10; i++) {
       let p = new this.particles.Sprite(ball.x, ball.y);
-      p.d = this.board_peg_size * 1;
       p.direction = random(360);
       p.speed = random(3, 5);
       p.life = 45;

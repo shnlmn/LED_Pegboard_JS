@@ -75,8 +75,8 @@ class Pegboard {
   display_pegs() {
     /// set up peg lights with p5
     let i = 0;
-    fill("#974");
-    rect(0, 0, this.display_w, this.display_h);
+    // fill("#974");
+    // rect(0, 0, this.display_w, this.display_h);
     while (i < this.peg_coords.length) {
       const coords = this.peg_coords[i];
       const index = (coords[0] + coords[1] * this.display_w) * 4;
