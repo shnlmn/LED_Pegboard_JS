@@ -20,46 +20,46 @@ class Pegboard {
     this.analog_inputs = (0, 4); //number of cols and rows for analog inputs, 0 is entire row/column;
     this.canvas_position = [50, 10];
 
-    // write peg center coordinates
-    this.peg_coords = {};
+    this.peg_coords = [];
 
-    for (let index = 0; index < this.num_list.length; index++) {
+    for (let index = 0; index < this.length; index++) {
       let x_count = (this.board_peg_spacing * index) % this.board_w;
       let y_count =
         this.board_peg_spacing *
         Math.floor((this.board_peg_spacing * index) / this.board_w);
-      this.peg_coords[index] = [
+      this.peg_coords.push([
         x_count + this.board_peg_spacing / 2,
         y_count + this.board_peg_spacing / 2,
-      ];
+      ]);
     }
 
     //designate certain coordinates for Digital and Analog Input
-    this.peg_D_inputs = {};
-    this.peg_A_inputs = {};
-
-    for (const [k, v] of Object.entries(this.peg_coords)) {
+    this.peg_D_inputs = [];
+    this.peg_A_inputs = [];
+    for (let i = 0; i < this.peg_coords.length; i++) {
+      const v = this.peg_coords[i];
       if (v[1] > this.board_h * this.input_section + this.peg_spacing) {
-        this.peg_D_inputs[k] = v;
+        this.peg_D_inputs.push(v);
       }
     }
-    for (const [k, v] of Object.entries(this.peg_coords)) {
+    for (let i = 0; i < this.peg_coords.length; i++) {
+      const v = this.peg_coords[i];
       if (v[0] > 670 && v[0] < 730) {
-        this.peg_A_inputs[k] = v;
+        this.peg_A_inputs.push(v);
       }
     }
-
+    print(this.peg_D_inputs);
     // set up state objects to check for active pegs
-    this.peg_D_state = {};
-    this.peg_A_state = {};
+    this.peg_D_state = [];
+    this.peg_A_state = [];
 
-    for (const [k, v] of Object.entries(this.peg_D_inputs)) {
-      this.peg_D_state[k] = false;
+    for (let i = 0; i < this.peg_D_inputs.length; i++) {
+      this.peg_D_state.push(false);
     }
-    for (const [k, v] of Object.entries(this.peg_A_inputs)) {
-      this.peg_A_state[k] = false;
+    for (let i = 0; i < this.peg_A_inputs.length; i++) {
+      this.peg_A_state.push(false);
     }
-
+    print(this.peg_D_state);
     ///// create createGraphics object for the peg lights
     this.peg_light = createGraphics(this.display_w, this.display_h);
     this.peg_light.stroke(0, 0);
@@ -72,39 +72,28 @@ class Pegboard {
     this.backImg = loadImg("./assets/back.jpg");
   }
 
-
-  // read_peg(coord) {
-  //   const index =
-  //     parseFloat(coord[0]) + parseFloat(coord[1]) * this.display_w * 4;
-  //   // print(i, index, coord[0], coord[1], pixels[index]);
-  //   const r = pixels[index];
-  //   const g = pixels[index + 1];
-  //   const b = pixels[index + 2];
-  //   return [r, g, b];
-  // }
-
   display_pegs() {
     /// set up peg lights with p5
-    for (const key in this.peg_coords) {
-      const coords = this.peg_coords[key]
-      const index = coords[0] + coords[1] * this.display_w * 4;
-      // print(i, index, coord[0], coord[1], pixels[index]);
+    let i = 0;
+    fill("#974");
+    rect(0, 0, this.display_w, this.display_h);
+    while (i < this.peg_coords.length) {
+      const coords = this.peg_coords[i];
+      const index = (coords[0] + coords[1] * this.display_w) * 4;
       const r = pixels[index];
       const g = pixels[index + 1];
       const b = pixels[index + 2];
-      // this.peg_light.fill(r, g, b);
-      this.peg_light.circle(
-        coords[0], coords[1],
-        this.board_peg_size
-      );
+      fill(r, g, b);
+      stroke(r, g, b);
+      circle(coords[0], coords[1], this.board_peg_size);
+      i++;
     }
-    image(this.peg_light, 0, 0);
   }
 
   ///// read the status of the input peg holes
   get_status() {
     last_hall_active = this.hall_active;
-    this.hall_active = Object.values(this.read_sensor_inputs()).filter(
+    this.hall_active = this.read_sensor_inputs().filter(
       (element) => element === false
     ).length;
     if (this.hall_active != last_hall_active) {
@@ -116,7 +105,8 @@ class Pegboard {
 
   read_sensor_inputs() {
     // Stand-in for actual sensor reading
-    return this.peg_D_state, this.peg_A_state;
+    print(this.peg_D_state)
+    return [this.peg_D_state, this.peg_A_state];
   }
 
   get_peg_coords() {
@@ -124,18 +114,19 @@ class Pegboard {
   }
 
   mouseClicked(e) {
-    for (const [k, v] of Object.entries(this.peg_D_inputs)) {
+    for (let index = 0; index < this.peg_D_inputs.length; index++) {
+      const vD = this.peg_D_inputs[index];
       const actual_x = e.x - this.canvas_position[0];
       const actual_y = e.y - this.canvas_position[1];
-      let vD = v;
       if (
         Math.abs(actual_x - vD[0]) <= this.board_peg_size &&
         Math.abs(actual_y - vD[1]) <= this.board_peg_size
       ) {
         print("HIT A PEG");
-        this.peg_D_state[k] = !this.peg_D_state[k];
+        this.peg_D_state[index] = !this.peg_D_state[index];
       }
     }
+    print(this.peg_D_state);
   }
 }
 
