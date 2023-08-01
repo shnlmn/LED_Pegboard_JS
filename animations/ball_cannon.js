@@ -15,7 +15,7 @@ class pbAnimation extends Pegboard {
     this.active_A_count = 0;
     this.peg_coords = this.get_peg_coords();
     this.particles = new Group();
-    this.particles.d = this.board_peg_size*3;
+    this.particles.d = this.board_peg_size * 3;
     this.particles.strokeWeight = 0;
     this.cannons = new Group();
     this.cannons.rotationSpeed = 5;
@@ -30,13 +30,14 @@ class pbAnimation extends Pegboard {
     this.cannonballs.strokeWeight = 0;
     this.cannonballs.d = this.board_peg_size * 8;
     world.gravity.y = 1;
-    // for (let i = 0; i < 100; i++) {
-    //   let x = ~~(Math.random() * this.display_w);
-    //   let y = ~~(Math.random() * this.display_h);
-    //   let ball = new this.balls.Sprite(x, y);
-    //   ball.strokeWeight = 0;
-    //   ball.friction = 0.01;
-    // }
+
+    for (let i = 0; i < 100; i++) {
+      let x = ~~(Math.random() * this.display_w);
+      let y = ~~(Math.random() * this.display_h);
+      let ball = new this.balls.Sprite(x, y);
+      ball.strokeWeight = 0;
+      ball.friction = 0.01;
+    }
   }
 
   pop(ball) {
@@ -46,6 +47,13 @@ class pbAnimation extends Pegboard {
       p.speed = random(3, 5);
       p.life = 45;
     }
+  }
+  preload(callback) {
+    this.alphabet_sprites = loadImg("./assets/alphabet.png", () => {
+      if (callback) {
+        callback();
+      }
+    });
   }
 
   display() {
@@ -73,24 +81,37 @@ class pbAnimation extends Pegboard {
     if (frameCount % 5 == 0) {
       new this.balls.Sprite(~~(Math.random() * this.display_w), -150);
     }
+    this.cannons.draw();
     this.cannonballs.draw();
     this.balls.draw();
-    this.cannons.draw();
     this.particles.draw();
   }
+
   mouseClicked(e) {
-    for (let index = 0; index < this.peg_D_inputs.length; index++) {
-      const vD = this.peg_D_inputs[index];
-      const actual_x = e.x - this.canvas_position[0];
-      const actual_y = e.y - this.canvas_position[1];
-      if (
-        Math.abs(actual_x - vD[0]) <= this.board_peg_size / 2 &&
-        Math.abs(actual_y - vD[1]) <= this.board_peg_size / 2
-      ) {
-        let cannon = new this.cannons.Sprite(vD[0], vD[1]);
-        cannon.h = 10 * this.board_peg_size;
-        cannon.w = 3 * this.board_peg_size;
-        cannon.offset.y = -20;
+    let peg_D_activated, peg_A_activated;
+    [this.peg_D_state, peg_D_activated] = this.insert_peg(
+      this.peg_D_state,
+      this.peg_D_inputs,
+      e
+    );
+    [this.peg_A_state, peg_A_activated] = this.insert_peg(
+      this.peg_A_state,
+      this.peg_A_inputs,
+      e
+    );
+    if (this.peg_D_state[peg_D_activated]) {
+      let coord = this.peg_D_inputs[peg_D_activated]
+      let cannon = new this.cannons.Sprite(coord[0], coord[1]);
+      cannon.h = 10 * this.board_peg_size;
+      cannon.w = 3 * this.board_peg_size;
+      cannon.offset.y = -20;
+      cannon.peg_number = peg_D_activated;
+    } else {
+      for (let j = 0; j < this.cannons.length; j++) {
+        const cannon_clicked = this.cannons[j];
+        if (cannon_clicked.peg_number == peg_D_activated) {
+          cannon_clicked.remove();
+        }
       }
     }
   }

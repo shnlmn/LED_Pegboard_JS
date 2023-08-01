@@ -20,6 +20,7 @@ class Pegboard {
     this.analog_inputs = (0, 4); //number of cols and rows for analog inputs, 0 is entire row/column;
     this.canvas_position = [50, 10];
 
+    ///// Write the coordinates for the pegs into an array
     this.peg_coords = [];
 
     for (let index = 0; index < this.length; index++) {
@@ -33,7 +34,7 @@ class Pegboard {
       ]);
     }
 
-    //designate certain coordinates for Digital and Analog Input
+    ///// designate certain coordinates for Digital and Analog Input
     this.peg_D_inputs = [];
     this.peg_A_inputs = [];
     for (let i = 0; i < this.peg_coords.length; i++) {
@@ -44,12 +45,12 @@ class Pegboard {
     }
     for (let i = 0; i < this.peg_coords.length; i++) {
       const v = this.peg_coords[i];
-      if (v[0] > 670 && v[0] < 730) {
+      if (v[1] > 670 && v[1] < 730) {
         this.peg_A_inputs.push(v);
       }
     }
-    print(this.peg_D_inputs);
-    // set up state objects to check for active pegs
+
+    ////// set up state objects to check for active pegs
     this.peg_D_state = [];
     this.peg_A_state = [];
 
@@ -59,24 +60,15 @@ class Pegboard {
     for (let i = 0; i < this.peg_A_inputs.length; i++) {
       this.peg_A_state.push(false);
     }
-    print(this.peg_D_state);
-    ///// create createGraphics object for the peg lights
-    this.peg_light = createGraphics(this.display_w, this.display_h);
-    this.peg_light.stroke(0, 0);
-    this.peg_light.strokeWeight(0);
-    this.peg_colors = [];
   }
 
   ///// call preload from sketch.js: Pegboard.preload()
   static preload() {
-    this.backImg = loadImg("./assets/back.jpg");
+    this.backgroundImg = loadImg("./assets/back.jpg");
   }
 
   display_pegs() {
-    /// set up peg lights with p5
     let i = 0;
-    // fill("#974");
-    // rect(0, 0, this.display_w, this.display_h);
     while (i < this.peg_coords.length) {
       const coords = this.peg_coords[i];
       const index = (coords[0] + coords[1] * this.display_w) * 4;
@@ -105,7 +97,7 @@ class Pegboard {
 
   read_sensor_inputs() {
     // Stand-in for actual sensor reading
-    print(this.peg_D_state)
+    print(this.peg_D_state);
     return [this.peg_D_state, this.peg_A_state];
   }
 
@@ -113,21 +105,70 @@ class Pegboard {
     return this.peg_coords;
   }
 
-  mouseClicked(e) {
-    for (let index = 0; index < this.peg_D_inputs.length; index++) {
-      const vD = this.peg_D_inputs[index];
+  check_clicked_peg(peg_state, peg_inputs, e) {
+    let peg_number;
+    let peg_coord;
+    let found = false;
+    for (let index = 0; index < peg_state.length; index++) {
+      const vD = peg_inputs[index];
+      // print(vD)
       const actual_x = e.x - this.canvas_position[0];
       const actual_y = e.y - this.canvas_position[1];
       if (
-        Math.abs(actual_x - vD[0]) <= this.board_peg_size &&
-        Math.abs(actual_y - vD[1]) <= this.board_peg_size
+        Math.abs(actual_x - vD[0]) <= this.board_peg_size / 2 &&
+        Math.abs(actual_y - vD[1]) <= this.board_peg_size / 2
       ) {
-        print("HIT A PEG");
-        this.peg_D_state[index] = !this.peg_D_state[index];
+        print("PEG HIT");
+        peg_state[index] = !peg_state[index];
+        peg_number = index;
+        peg_coord = { x: vD[0], y: vD[1] };
+        found = true;
       }
     }
-    print(this.peg_D_state);
+    if (found) {
+      return [peg_number, peg_coord];
+    } else {
+      return [false, false];
+    }
   }
+  toggle_peg(e) {
+    ///// takes peg state
+    let peg_D_number,
+      peg_D_coord,
+      peg_A_number,
+      peg_A_coord,
+      peg_D_obj,
+      peg_A_obj;
+    [peg_D_number, peg_D_coord] = this.check_clicked_peg(
+      this.peg_D_state,
+      this.peg_D_inputs,
+      e
+    );
+    [peg_A_number, peg_A_coord] = this.check_clicked_peg(
+      this.peg_A_state,
+      this.peg_A_inputs,
+      e
+    );
+    if (peg_D_number > 0) {
+      peg_D_obj = {
+        number: peg_D_number,
+        coord: peg_D_coord,
+      };
+    } else {
+      peg_D_obj = false;
+    }
+    if (peg_A_number) {
+      peg_A_obj = {
+        number: peg_A_number,
+        coord: peg_A_coord,
+      };
+    } else {
+      peg_A_obj = false;
+    }
+
+    return [peg_D_obj, peg_A_obj];
+  }
+
 }
 
 class NeopixelDisplay {
