@@ -2,7 +2,7 @@ class Analog_pegs extends Pegboard {
 //   static alphabet_sprites;
   constructor(alphabet_sprites) {
     super();
-    this.alphabet = [..."abcdefghijklmnopqrstuvwxyz❌"];
+    this.alphabet = [..."abcdefghijklmnopqrstuvwxyz"];
     this.numbers = [..."0123456789"];
     this.animals = ["cat", "dog", "horse", "elephant", "mouse"];
     this.plants = ["tree", "flower", "bush", "mushroom"];

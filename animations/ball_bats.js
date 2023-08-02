@@ -61,25 +61,29 @@ class pbAnimation extends Pegboard {
       this.balls.friction = 0.01;
     }
   }
+  preload(){
 
+  }
   ///// detect mouse click, find closest peg, and add a sprite
   mouseClicked(e) {
-    for (const [k, v] of Object.entries(this.peg_D_inputs)) {
-      const actual_x = e.x - this.canvas_position[0];
-      const actual_y = e.y - this.canvas_position[1];
-      let vD = v;
-      if (
-        Math.abs(actual_x - vD[0]) <= this.board_peg_size &&
-        Math.abs(actual_y - vD[1]) <= this.board_peg_size
-      ) {
-
-        let paddle = new this.paddles.Sprite(v[0], v[1], 80, 10, "k");
+    let peg_D_obj, peg_A_obj;
+    [peg_D_obj, peg_A_obj] = this.toggle_peg(e);
+    if (peg_D_obj) {
+      const coords = peg_D_obj['coord']
+      let new_peg = true;
+      for (let index = 0; index < this.paddles.length; index++) {
+        const paddle = this.paddles[index];
+        if (paddle.peg_number == peg_D_obj["number"]) {
+          paddle.remove();
+          new_peg = false;
+        }
+      }
+      if (new_peg) {
+        let paddle = new this.paddles.Sprite(coords.x, coords.y, 80, 10, "k");
         paddle.color = "red";
         paddle.strokeWeight = 0;
         paddle.offset.x = 30;
         paddle.rotationSpeed = 10;
-        print("HIT A PEG");
-        this.peg_D_state[k] = !this.peg_D_state[k];
       }
     }
   }

@@ -88,30 +88,24 @@ class pbAnimation extends Pegboard {
   }
 
   mouseClicked(e) {
-    let peg_D_activated, peg_A_activated;
-    [this.peg_D_state, peg_D_activated] = this.insert_peg(
-      this.peg_D_state,
-      this.peg_D_inputs,
-      e
-    );
-    [this.peg_A_state, peg_A_activated] = this.insert_peg(
-      this.peg_A_state,
-      this.peg_A_inputs,
-      e
-    );
-    if (this.peg_D_state[peg_D_activated]) {
-      let coord = this.peg_D_inputs[peg_D_activated]
-      let cannon = new this.cannons.Sprite(coord[0], coord[1]);
-      cannon.h = 10 * this.board_peg_size;
-      cannon.w = 3 * this.board_peg_size;
-      cannon.offset.y = -20;
-      cannon.peg_number = peg_D_activated;
-    } else {
-      for (let j = 0; j < this.cannons.length; j++) {
-        const cannon_clicked = this.cannons[j];
-        if (cannon_clicked.peg_number == peg_D_activated) {
-          cannon_clicked.remove();
+    let peg_D_obj, peg_A_obj;
+    [peg_D_obj, peg_A_obj] = this.toggle_peg(e);
+    if (peg_D_obj) {
+      let new_peg = true;
+      for (let index = 0; index < this.cannons.length; index++) {
+        const cannon = this.cannons[index];
+        if (cannon.peg_number == peg_D_obj["number"]) {
+          cannon.remove();
+          new_peg = false;
         }
+      }
+      if (new_peg) {
+        let coord = peg_D_obj["coord"];
+        let cannon = new this.cannons.Sprite(coord.x, coord.y);
+        cannon.h = 10 * this.board_peg_size;
+        cannon.w = 3 * this.board_peg_size;
+        cannon.offset.y = -20;
+        cannon.peg_number = peg_D_obj["number"];
       }
     }
   }

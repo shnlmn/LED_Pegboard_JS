@@ -15,7 +15,26 @@ class pbAnimation extends Pegboard {
     this.active_A_count = 0;
     this.peg_coords = this.get_peg_coords();
   }
+  shuffle(array) {
+    let currentIndex = array.length,
+      randomIndex;
 
+    // While there remain elements to shuffle.
+    while (currentIndex != 0) {
+      // Pick a remaining element.
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+
+    return array;
+  }
+  preload() {}
   orbit() {
     this.orbit_x =
       Math.sin(frameCount * this.speed * 0.15) * this.circle_distance;
@@ -48,7 +67,7 @@ class pbAnimation extends Pegboard {
     );
     let active_pegs = createGraphics(this.display_w, this.display_h);
     clear();
-    animCanvas.background(55)
+    animCanvas.background(55);
 
     ///// count active pegs to determine animation.
     this.active_D_count = Object.values(this.peg_D_state).filter(
@@ -59,7 +78,7 @@ class pbAnimation extends Pegboard {
     ///// create list of active nodes
     for (const [k, v] of Object.entries(this.peg_D_state)) {
       if (v === true) {
-        this.active_nodes[k] = this.peg_coords[k];
+        this.active_nodes[k] = this.peg_D_inputs[k];
       }
     }
     animCanvas.stroke(0, 0);
@@ -67,10 +86,10 @@ class pbAnimation extends Pegboard {
     ///// light up active peg - this ignores scaling using active_pegs canvas
     for (const [k, v] of Object.entries(this.active_nodes)) {
       active_pegs.fill("#fff");
-      active_pegs.stroke(0,0);
+      active_pegs.stroke(0, 0);
       active_pegs.circle(
-        this.peg_coords[k][0],
-        this.peg_coords[k][1],
+        this.peg_D_inputs[k][0],
+        this.peg_D_inputs[k][1],
         this.board_peg_size
       );
     }
@@ -79,7 +98,7 @@ class pbAnimation extends Pegboard {
       ///// create orbit if only one peg is selected
       for (const [k, v] of Object.entries(this.peg_D_inputs)) {
         if (this.peg_D_state[k]) {
-          let peg_coords = this.peg_coords[k];
+          let peg_coords = this.peg_D_inputs[k];
           this.location = createVector(
             peg_coords[0] * scaling,
             peg_coords[1] * scaling
@@ -125,6 +144,7 @@ class pbAnimation extends Pegboard {
           this.to_node += 1;
         } else {
           this.to_node = 0;
+        this.active_nodes = this.shuffle(this.active_nodes)
         }
       }
 
@@ -146,5 +166,10 @@ class pbAnimation extends Pegboard {
     image(animCanvas, 0, 0, this.display_w, this.display_h);
     image(animCanvas, 0, 0);
     image(active_pegs, 0, 0);
+  }
+  mouseClicked(e) {
+    let peg_D_obj, peg_A_obj;
+    [peg_D_obj, peg_A_obj] = this.toggle_peg(e);
+    this.active_pegs = this.shuffle(this.active_pegs)
   }
 }

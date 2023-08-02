@@ -53,7 +53,7 @@ class pbAnimation extends Analog_pegs {
     for (let index = 0; index < this.letter_sprites.length; index++) {
       const l_sprite = this.letter_sprites[index];
       l_sprite.x = index * (l_sprite.width + this.board_peg_spacing);
-      l_sprite.y = this.board_peg_spacing * 24;
+      l_sprite.y = this.board_peg_spacing * 28;
     }
   }
 
@@ -65,7 +65,6 @@ class pbAnimation extends Analog_pegs {
   mouseClicked(e) {
     let peg_D_obj, peg_A_obj;
     [peg_D_obj, peg_A_obj] = this.toggle_peg(e);
-    print(peg_D_obj, peg_A_obj);
     if (peg_A_obj) {
       let new_peg = true;
       for (let index = 0; index < this.inserted_pegs.length; index++) {
