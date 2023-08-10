@@ -1,5 +1,7 @@
 {
-    "editor.acceptSuggestionOnCommitCharacter": false,
-    "editor.inlineSuggest.enabled": false,
-    "editor.acceptSuggestionOnEnter": "off"
+    "editor.acceptSuggestionOnCommitCharacter": true,
+    "editor.inlineSuggest.enabled": true,
+    "editor.acceptSuggestionOnEnter": "smart",
+    "editor.inlineSuggest.suppressSuggestions": false,
+    "editor.inlineSuggest.showToolbar": "always"
 }

@@ -3,11 +3,12 @@ let analog_pegs;
 p5.disableFriendlyErrors = true;
 function setup() {
   Pegboard.preload(); // preload background image
+  // Analog_pegs.preload();
   this.animation = new pbAnimation();
   this.analog_pegs = new Analog_pegs();
-  this.animation.preload(() => {
-    draw();
-  });
+  // this.animation.preload(() => {
+  //   draw();
+  // });
   this.pegboard = new Pegboard();
   createCanvas(
     this.pegboard.display_w,
@@ -23,7 +24,7 @@ function setup() {
 function draw() {
   this.animation.display();
   loadPixels();
-  this.analog_pegs.display();
+  // this.analog_pegs.display();
   image(Pegboard.backgroundImg, 0, 0);
   this.pegboard.display_pegs();
   textSize(32);
