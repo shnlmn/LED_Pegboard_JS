@@ -5,8 +5,6 @@ class pbAnimation extends Pegboard {
     this.speed_floor = 20 * this.scale;
     this.circle_distance = 4 * this.scale;
     this.ball_diameter = 4 * this.board_peg_size;
-    this.orbit_x = 0;
-    this.orbit_y = 0;
     this.location = createVector(0, 0);
     this.travel_vector = createVector(0, 0);
     this.to_node = 0;
@@ -26,32 +24,8 @@ class pbAnimation extends Pegboard {
     }
   }
 
-  orbit() {
-    this.orbit_x =
-      Math.sin(frameCount * this.speed * 0.15) * this.circle_distance;
-    this.orbit_y =
-      Math.cos(frameCount * this.speed * 0.15) * this.circle_distance;
-  }
-
-  random_color() {
-    colors = [
-      "#90BE6D",
-      "#43AA8B",
-      "#4D908E",
-      "#577590",
-      "#277DA1",
-      "#F94144",
-      "#F3722C",
-      "#F8961E",
-      "#F9844A",
-      "#0099FF",
-    ];
-    return colors[Math.floor(Math.random() * colors.length)];
-  }
-
   display() {
-    clear();
-    background(80);
+    background(100, 100);
     this.paddles.draw();
     this.balls.draw();
     if (frameCount % 5 == 0) {
@@ -67,7 +41,7 @@ class pbAnimation extends Pegboard {
   ///// detect mouse click, find closest peg, and add a sprite
   mouseClicked(e) {
     let peg_D_obj, peg_A_obj;
-    [peg_D_obj, peg_A_obj] = this.toggle_peg(e);
+    [peg_D_obj, peg_A_obj] = this.toggle_peg();
     if (peg_D_obj) {
       const coords = peg_D_obj['coord']
       let new_peg = true;
@@ -83,7 +57,9 @@ class pbAnimation extends Pegboard {
         paddle.color = "red";
         paddle.strokeWeight = 0;
         paddle.offset.x = 30;
-        paddle.rotationSpeed = 10;
+        const direction = Math.random()<0.5 ? 1 : -1;
+        print(direction)
+        paddle.rotationSpeed = direction * 10;
       }
     }
   }

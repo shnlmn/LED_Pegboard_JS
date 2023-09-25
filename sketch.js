@@ -1,24 +1,23 @@
-let pegboard;
 let analog_pegs;
 p5.disableFriendlyErrors = true;
 function setup() {
   Pegboard.preload(); // preload background image
   // Analog_pegs.preload();
   this.animation = new pbAnimation();
-  this.analog_pegs = new Analog_pegs();
+  this.pegboard = new Pegboard();
   // this.animation.preload(() => {
   //   draw();
   // });
-  this.pegboard = new Pegboard();
   createCanvas(
     this.pegboard.display_w,
-    this.pegboard.display_h + this.analog_pegs.key_height
-  ).position(...this.pegboard.canvas_position);
+    this.pegboard.display_h 
+  );
   loadPixels();
   this.bg = createGraphics(this.pegboard.display_w, this.pegboard.display_h);
   this.bg.fill(20);
   this.bg.rect(0, 0, this.pegboard.display_w, this.pegboard.display_h);
   image(this.bg, 0, 0);
+  pixelDensity(1);
 }
 
 function draw() {
@@ -26,7 +25,7 @@ function draw() {
   loadPixels();
   // this.analog_pegs.display();
   image(Pegboard.backgroundImg, 0, 0);
-  this.pegboard.display_pegs();
+  this.animation.display_pegs();
   textSize(32);
   fill("white");
   text(getFPS(), 0, 60);

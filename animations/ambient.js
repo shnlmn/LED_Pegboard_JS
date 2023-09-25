@@ -1,4 +1,4 @@
-class pbAnimation extends Analog_pegs {
+class pbAnimation extends Pegboard {
   constructor() {
     super();
     // this.video = createVideo(["assets/video1.mp4"]);
@@ -9,13 +9,12 @@ class pbAnimation extends Analog_pegs {
     this.thumb_w = 120;
     this.thumb_h = 80;
     this.video_list = [
-      "assets/videos/video1.mp4",
-      "assets/videos/video2.mp4",
-      "assets/videos/video3.mp4",
-      "assets/videos/video4.mp4",
-      "assets/videos/video5.mp4",
+      "assets/videos/Fancy.mp4",
+      "assets/videos/light projector effect.mp4",
+      "assets/videos/StarfulSky.mp4",
+      "assets/videos/YellowSwirl.mp4",
+      "assets/videos/sailboatmovie.mp4",
       "assets/videos/GalaxyMarble.mp4",
-      "assets/videos/color_refraction.mkv",
       "assets/videos/JellyNebula.mp4",
     ];
     this.videos = [];
@@ -25,7 +24,7 @@ class pbAnimation extends Analog_pegs {
 
   preload() {
     ///// load main video
-    this.video = createVideo(["assets/videos/video1.mp4"]);
+    this.video = createVideo(this.video_list[0]);
     this.video.size(this.display_w, this.display_h);
     this.video.loop();
     this.video.hide();
@@ -39,7 +38,11 @@ class pbAnimation extends Analog_pegs {
       });
       // this.videos[i].loop();
       this.videos[i].size(this.thumb_w, this.thumb_h);
-      this.videos[i].position((this.thumb_w + 10)* i + 60, this.display_h + 10);
+      this.videos[i].position(
+        this.thumb_w * i + (windowWidth/2 - this.display_w/2),
+        this.display_h + 40
+      );
+
       // this.videos[i].loadPixels();
       // this.videos[i].hide();
     }

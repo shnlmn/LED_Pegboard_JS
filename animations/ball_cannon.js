@@ -31,7 +31,7 @@ class pbAnimation extends Pegboard {
     this.cannonballs.d = this.board_peg_size * 8;
     world.gravity.y = 1;
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 0; i < 30; i++) {
       let x = ~~(Math.random() * this.display_w);
       let y = ~~(Math.random() * this.display_h);
       let ball = new this.balls.Sprite(x, y);
@@ -57,7 +57,7 @@ class pbAnimation extends Pegboard {
   }
 
   display() {
-    background(60, 50);
+    background(60, 100);
     if (this.cannons.length > 0) {
     }
     for (const cannon of this.cannons) {

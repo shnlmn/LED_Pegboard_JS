@@ -18,7 +18,6 @@ class Pegboard {
     this.num_list = [...Array(parseInt(this.length)).keys()];
     this.input_section = 0.5; // percentage of bottom of board for inputs.;
     this.analog_inputs = (0, 4); //number of cols and rows for analog inputs, 0 is entire row/column;
-    this.canvas_position = [50, 10];
 
     ///// Write the coordinates for the pegs into an array
     this.peg_coords = [];
@@ -105,15 +104,15 @@ class Pegboard {
     return this.peg_coords;
   }
 
-  check_clicked_peg(peg_state, peg_inputs, e) {
+  check_clicked_peg(peg_state, peg_inputs) {
     let peg_number;
     let peg_coord;
     let found = false;
     for (let index = 0; index < peg_state.length; index++) {
       const vD = peg_inputs[index];
       // print(vD)
-      const actual_x = e.x - this.canvas_position[0];
-      const actual_y = e.y - this.canvas_position[1];
+      const actual_x = mouseX
+      const actual_y = mouseY
       if (
         Math.abs(actual_x - vD[0]) <= this.board_peg_size / 2 &&
         Math.abs(actual_y - vD[1]) <= this.board_peg_size / 2
@@ -131,7 +130,7 @@ class Pegboard {
       return [false, false];
     }
   }
-  toggle_peg(e) {
+  toggle_peg() {
     ///// takes peg state
     let peg_D_number,
       peg_D_coord,
@@ -142,12 +141,10 @@ class Pegboard {
     [peg_D_number, peg_D_coord] = this.check_clicked_peg(
       this.peg_D_state,
       this.peg_D_inputs,
-      e
     );
     [peg_A_number, peg_A_coord] = this.check_clicked_peg(
       this.peg_A_state,
-      this.peg_A_inputs,
-      e
+      this.peg_A_inputs
     );
     if (peg_D_number > 0) {
       peg_D_obj = {

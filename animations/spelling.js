@@ -1,32 +1,38 @@
-class pbAnimation extends Analog_pegs {
+class pbAnimation extends Pegboard {
   constructor() {
     super();
     this.active_D_count = 0;
     this.active_A_count = 0;
-    this.words = [
-      "apple",
-      "tiger",
-      "house",
-      "baseball",
-      "kitchen",
-      "running",
-    ];
+    this.words = ["apple", "tiger", "house", "baseball", "kitchen", "running"];
     this.alphabet_sprites;
     this.jumble_sprites = new Group();
     this.current_word = this.words[0];
     this.correct_answer = false;
+    this.correct_to = 0;
+    this.incorrect_letters = [];
     this.frame = 0;
     this.animation_done = true;
+    this.alphabet = [..."abcdefghijklmnopqrstuvwxyz?"];
+    this.numbers = [..."0123456789"];
+    this.animals = ["cat", "dog", "horse", "elephant", "mouse"];
+    this.plants = ["tree", "flower", "bush", "mushroom"];
+    this.key_width = this.display_w;
+    this.key_height = 100;
+    this.active_peg;
 
     ///// SETUP ALPHABET SPRITES AND BUTTONS
     for (const key in this.alphabet) {
       let display_letter = createButton(this.alphabet[key]);
-      display_letter.position(key * 33 + 55, this.display_h + 20);
+      display_letter.position(
+        key * 33 + (windowWidth / 2 - this.display_w / 2),
+        this.display_h + 10
+      );
       display_letter.size(30, 50);
+      display_letter.addClass("inactive");
       display_letter.mousePressed(() => this.updateActivePeg(key));
-      display_letter.style("background-color:white; border-style:hidden");
+      // display_letter.style("background-color:white; border-style:hidden");
     }
-    this.letter_sprites = new Group();
+    this.letter_sprites = new Group(); // These sprites are for the letters that are inserted into the board
     this.preload(() => {
       this.alphabet_sprites = loadImg("./assets/alphabet.png", () => {
         this.show_jumble();
@@ -69,11 +75,30 @@ class pbAnimation extends Analog_pegs {
     return letter_sprite;
   }
 
+  updateActivePeg(key) {
+    this.active_peg = this.alphabet[key];
+    const buttons = document.querySelectorAll("button");
+    buttons.forEach((button) => {
+      // print(button.innerHTML);
+      button.className = "inactive";
+      if (button.innerHTML === this.alphabet[key]) {
+        button.addEventListener("click", function (event) {
+          event.target.className = "active";
+          print("click", event.target.className);
+        });
+      }
+    });
+  }
+
   load_spelling_sprites(letter, addr) {
-    // print("load", this.alphabet_sprites.width);
+    // 1. create a sprite for the letter
+    // 2. add the sprite to the letter_sprites group
+    // 3. update the letters
+
     let letter_sprite = this.create_letter_sprite(letter);
     letter_sprite.addr = addr;
     this.letter_sprites.push(letter_sprite);
+    print("load spelling sprites", this.letter_sprites);
     this.update_letters();
   }
 
@@ -123,8 +148,18 @@ class pbAnimation extends Analog_pegs {
     for (let i = 0; i < this.letter_sprites.length; i++) {
       guess += this.letter_sprites[i].letter;
     }
-    if (guess == this.current_word) {
-      this.correct_answer = true;
+    // check if the guess up to this letter is correct
+    if (guess.slice(0, this.letter_sprites.length) == this.current_word.slice(0, this.letter_sprites.length)) {
+      print("guess is good")
+      if (guess == this.current_word) {
+        print("guess is correct")
+        this.correct_answer = true;
+      } else {
+        print("guess is partial", this.correct_to)
+        this.correct_to = this.letter_sprites.length + 1;
+      }
+    } else {
+      print("guess is bad", guess.slice(0, this.letter_sprites.length))
     }
   }
   correct() {
@@ -166,31 +201,41 @@ class pbAnimation extends Analog_pegs {
     this.frame++;
   }
 
-  mouseClicked(e) {
+  mouseClicked() {
     let peg_D_obj, peg_A_obj;
-    [peg_D_obj, peg_A_obj] = this.toggle_peg(e);
+    [peg_D_obj, peg_A_obj] = this.toggle_peg();
+    // Check if peg is in D or A
     if (peg_A_obj) {
       let new_peg = true;
+      // Check if peg is already in inserted_pegs
+      // Remove peg if it's already in inserted_pegs
       for (let index = 0; index < this.inserted_pegs.length; index++) {
-        const peg = this.inserted_pegs[index];
-        if (peg.addr == peg_A_obj["number"]) {
+        const inserted_peg = this.inserted_pegs[index];
+        if (inserted_peg.addr == peg_A_obj["number"]) {
           for (let i = 0; i < this.letter_sprites.length; i++) {
             const sprite = this.letter_sprites[i];
-            if (sprite.addr == peg.addr) {
+            if (sprite.addr == inserted_peg.addr) {
               sprite.remove();
             }
           }
-          peg.remove();
+          inserted_peg.remove();
           new_peg = false;
         }
         this.update_letters();
       }
+      // Add peg if it didn't pass the above test
       if (new_peg) {
+        // add letter to letter_sprites
+        if (this.active_peg == "?") {
+          this.active_peg = this.current_word[this.correct_to];
+        }
+        //this.load_spelling_sprites}
+        print(this.active_peg,this.correct_to, this.current_word[this.correct_to])
         this.load_spelling_sprites(this.active_peg, peg_A_obj["number"]);
+        // add peg to inserted_pegs
         const new_peg = new this.inserted_pegs.Sprite();
         new_peg.addr = peg_A_obj["number"];
         new_peg.pos = peg_A_obj["coord"];
-        // print(new_peg.addr, new_peg.pos);
       }
     }
     this.check_answer();

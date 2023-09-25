@@ -58,25 +58,35 @@ class pbAnimation extends Pegboard {
   set_target() {
     this.target = new Sprite();
     this.target.d = this.board_peg_spacing * 6;
-    this.target.x = Math.random() * (this.display_w - this.margin) + this.margin;
-    this.target.y = Math.random() * (this.display_h / 2 - this.margin) + this.margin;
+    this.target.x =
+      Math.random() * (this.display_w - this.margin) + this.margin;
+    this.target.y =
+      Math.random() * (this.display_h / 2 - this.margin) + this.margin;
+    const closest_peg = this.peg_coords.reduce((a, b) => {
+      let a_dist = dist(a[0], a[1], this.target.x, this.target.y);
+      let b_dist = dist(b[0], b[1], this.target.x, this.target.y);
+      return a_dist < b_dist ? a : b;
+    });
+    this.target.x = closest_peg[0];
+    this.target.y = closest_peg[1];
     this.target.collider = "s";
     this.target.stroke = "red";
     // this.target.shapeColor= (100, 0)
-    this.target.shapeColor.setAlpha(0)
+    this.target.shapeColor.setAlpha(0);
     this.target.strokeWeight = 12;
     this.target.collides(this.balls, (target, ball) => {
-      this.new_target(target, ball)
+      this.new_target(target, ball);
     });
   }
-  new_target(target, ball){
-      this.pop(target);
-      target.remove();
-      ball.remove();
-      this.set_target();
-      this.random_ball_og = Math.random() * (this.display_w - this.margin) + this.margin;
-      this.random_ball_vel_x = Math.random() * 5;
-
+  new_target(target, ball) {
+    this.pop(target);
+    target.remove();
+    ball.remove();
+    this.set_target();
+    this.random_ball_og = Math.random() * (width-100) + 100;
+    this.random_ball_vel_x =
+     0.001 * (width / 2 - this.random_ball_og);
+     print(this.random_ball_vel_x, this.random_ball_og, width)
   }
   pop(ball) {
     for (let i = 0; i < 10; i++) {
@@ -93,6 +103,7 @@ class pbAnimation extends Pegboard {
   display() {
     background(60, 50);
     if (frameCount % 50 == 0) {
+      print(this.random_ball_vel_x)
       let new_ball = new this.balls.Sprite(this.random_ball_og, -10);
       new_ball.vel.x = this.random_ball_vel_x;
       new_ball.vel.y = 15;
@@ -146,8 +157,8 @@ class pbAnimation extends Pegboard {
               0.01,
               10
             );
-            print(remap)
-            if (isNaN(remap) || remap > 1000){
+            print(remap);
+            if (isNaN(remap) || remap > 1000) {
               remap = 1;
             }
             ball.addSpeed(remap);
