@@ -34,7 +34,7 @@ class pbAnimation extends Pegboard {
     }
     this.letter_sprites = new Group(); // These sprites are for the letters that are inserted into the board
     this.preload(() => {
-      this.alphabet_sprites = loadImg("./assets/alphabet.png", () => {
+      this.alphabet_sprites = loadImg("../assets/alphabet.png", () => {
         this.show_jumble();
         noSmooth();
         // this.load_spelling_sprites();
@@ -53,7 +53,7 @@ class pbAnimation extends Pegboard {
   }
 
   preload(callback) {
-    this.alphabet_sprites = loadImg("./assets/alphabet.png", () => {
+    this.alphabet_sprites = loadImg("../assets/alphabet.png", () => {
       // this.load_spelling_sprites();
       if (callback) {
         callback();

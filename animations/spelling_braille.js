@@ -1,7 +1,7 @@
 class pbAnimation extends Pegboard {
   constructor() {
     super();
-    this.active_D_count = 0;
+    this.active_count = 0;
     this.active_A_count = 0;
     this.words = ["apple", "tiger", "house", "baseball", "kitchen", "running"];
     this.alphabet_sprites;
@@ -12,14 +12,32 @@ class pbAnimation extends Pegboard {
     this.incorrect_letters = [];
     this.frame = 0;
     this.animation_done = true;
-    this.alphabet = [..."abcdefghijklmnopqrstuvwxyz?"];
+    this.alphabet = [..."abcdefghijklmnopqrstuvwxyz"];
     this.numbers = [..."0123456789"];
     this.animals = ["cat", "dog", "horse", "elephant", "mouse"];
     this.plants = ["tree", "flower", "bush", "mushroom"];
     this.key_width = this.display_w;
     this.key_height = 100;
-    this.active_peg;
-
+    this.active_peg = {};
+    this.search_timer = 0;
+    this.timer_limit = 20;
+    // prettier-ignore
+    this.brailleAlphabet = {
+    "a": [[1, 0], [0, 0], [0, 0]], "b": [[1, 0], [1, 0], [0, 0]],
+    "c": [[1, 1], [0, 0], [0, 0]], "d": [[1, 1], [0, 1], [0, 0]],
+    "e": [[1, 0], [0, 1], [0, 0]], "f": [[1, 1], [1, 0], [0, 0]],
+    "g": [[1, 1], [1, 1], [0, 0]], "h": [[1, 0], [1, 1], [0, 0]],
+    "i": [[0, 1], [1, 0], [0, 0]], "j": [[0, 1], [1, 1], [0, 0]],
+    "k": [[1, 0], [0, 0], [1, 0]], "l": [[1, 0], [1, 0], [1, 0]],
+    "m": [[1, 1], [0, 0], [1, 0]], "n": [[1, 1], [0, 1], [1, 0]],
+    "o": [[1, 0], [0, 1], [1, 0]], "p": [[1, 1], [1, 0], [1, 0]],
+    "q": [[1, 1], [1, 1], [1, 0]], "r": [[1, 0], [1, 1], [1, 0]],
+    "s": [[0, 1], [1, 0], [1, 0]], "t": [[0, 1], [1, 1], [1, 0]],
+    "u": [[1, 0], [0, 0], [1, 1]], "v": [[1, 0], [1, 0], [1, 1]],
+    "w": [[0, 1], [1, 1], [0, 1]], "x": [[1, 1], [0, 0], [1, 1]],
+    "y": [[1, 1], [0, 1], [1, 1]], "z": [[1, 0], [0, 1], [1, 1]]
+    };
+    this.braille_reservation_table = [...this.peg_state];
     ///// SETUP ALPHABET SPRITES AND BUTTONS
     for (const key in this.alphabet) {
       let display_letter = createButton(this.alphabet[key]);
@@ -34,7 +52,7 @@ class pbAnimation extends Pegboard {
     }
     this.letter_sprites = new Group(); // These sprites are for the letters that are inserted into the board
     this.preload(() => {
-      this.alphabet_sprites = loadImg("./assets/alphabet.png", () => {
+      this.alphabet_sprites = loadImg("../assets/alphabet.png", () => {
         this.show_jumble();
         noSmooth();
         // this.load_spelling_sprites();
@@ -51,9 +69,35 @@ class pbAnimation extends Pegboard {
     this.particles.d = 10;
     this.particles.strokeWeight = 0;
   }
+  // convert braille array into a letter
+  brailleToLetter(braille) {
+    // convert the input braille array o a string representation
+    // convert true and false to 1 and 0
+    for (let i = 0; i < braille.length; i++) {
+      const row = braille[i];
+      for (let j = 0; j < row.length; j++) {
+        const cell = row[j];
+        if (cell == true) {
+          braille[i][j] = 1;
+        } else {
+          braille[i][j] = 0;
+        }
+      }
+    }
+
+    const brailleString = JSON.stringify(braille);
+    print(brailleString);
+    // search the brailleAlphabet object for the matching string
+    for (const key in this.brailleAlphabet) {
+      const letterBraille = JSON.stringify(this.brailleAlphabet[key]);
+      if (letterBraille === brailleString) {
+        return key;
+      }
+    }
+  }
 
   preload(callback) {
-    this.alphabet_sprites = loadImg("./assets/alphabet.png", () => {
+    this.alphabet_sprites = loadImg("../assets/alphabet.png", () => {
       // this.load_spelling_sprites();
       if (callback) {
         callback();
@@ -76,7 +120,11 @@ class pbAnimation extends Pegboard {
   }
 
   updateActivePeg(key) {
-    this.active_peg = this.alphabet[key];
+    this.active_peg = {
+      letter: this.alphabet[key],
+      braille: this.brailleAlphabet[this.alphabet[key]],
+    };
+    print(this.active_peg);
     const buttons = document.querySelectorAll("button");
     buttons.forEach((button) => {
       // print(button.innerHTML);
@@ -149,17 +197,20 @@ class pbAnimation extends Pegboard {
       guess += this.letter_sprites[i].letter;
     }
     // check if the guess up to this letter is correct
-    if (guess.slice(0, this.letter_sprites.length) == this.current_word.slice(0, this.letter_sprites.length)) {
-      print("guess is good")
+    if (
+      guess.slice(0, this.letter_sprites.length) ==
+      this.current_word.slice(0, this.letter_sprites.length)
+    ) {
+      print("guess is good");
       if (guess == this.current_word) {
-        print("guess is correct")
+        print("guess is correct");
         this.correct_answer = true;
       } else {
-        print("guess is partial", this.correct_to)
+        print("guess is partial", this.correct_to);
         this.correct_to = this.letter_sprites.length + 1;
       }
     } else {
-      print("guess is bad", guess.slice(0, this.letter_sprites.length))
+      print("guess is bad", guess.slice(0, this.letter_sprites.length));
     }
   }
   correct() {
@@ -179,17 +230,22 @@ class pbAnimation extends Pegboard {
       // print(p);
     }
   }
+
+  ///// called by sketch.js to init the loop
   display() {
     background(60, 50);
+    // draw elements to canvas
     this.letter_sprites.draw();
     this.jumble_sprites.draw();
     this.particles.draw();
+    // check if the answer is correct
     if (this.correct_answer) {
       this.correct();
       this.correct_answer = false;
       this.frame = 0;
       this.animation_done = false;
     }
+    // check if the animation is done and reset the board
     if (this.frame > 40 && this.animation_done != true) {
       this.letter_sprites.remove();
       this.jumble_sprites.remove();
@@ -198,46 +254,128 @@ class pbAnimation extends Pegboard {
       this.show_jumble();
       this.animation_done = true;
     }
-    this.frame++;
+
+    this.frame++; // increment the frame counter for celebration animation
+
+    //------------ countdown to check braille to allow all pegs to be sensed, this will need calibration at this.timer_limit
+    //------------ this is reset in the mouseClicked function
+    if (this.run_timer) {
+      this.search_timer += 1;
+      if (this.search_timer > this.timer_limit) {
+        this.search_timer = 0;
+        this.run_timer = false;
+        this.check_braille();
+      }
+    }
+  }
+
+  ///// flip the braille array to check for the letter
+  flip_2d_array(array) {
+    print(array);
+    const flipped_array = [];
+    for (let i = 0; i < array[0].length; i++) {
+      const row = [];
+      for (let j = 0; j < array.length; j++) {
+        row.push(array[j][i]);
+      }
+      flipped_array.push(row);
+    }
+    return flipped_array;
+  }
+
+  check_braille() {
+    // look at pegs sequentially to find the upper-left peg
+    for (let i = 0; i < this.peg_state.length; i++) {
+      const current_peg_state = this.peg_state[i];
+      // once found, check if the peg is already in the inserted_pegs and is not reserved
+      if (
+        current_peg_state == true &&
+        this.braille_reservation_table[i] == false
+      ) {
+        // build test array for the braille letter
+        let test_array = { addrs: [], state: [] };
+        // build test array - [column:[row]]
+        for (let j = -1; j < 2; j++) {
+          test_array.addrs.push([i + j, i + this.w + j, i + 2 * this.w + j]);
+          test_array.state.push([
+            this.peg_state[i + j],
+            this.peg_state[i + this.w + j],
+            this.peg_state[i + 2 * this.w + j],
+          ]);
+        }
+        // check if any values in test_col_1 are true
+        if (!test_array.state[2].includes(true)) {
+          //remove column 1 from test_array
+          test_array.state.shift();
+          test_array.addrs.shift();
+        } else {
+          // remove column 3
+          test_array.state.pop();
+          test_array.addrs.pop();
+        }
+        // make the rest of the braille points active
+        test_array.state = this.flip_2d_array(test_array.state);
+        test_array.addrs = this.flip_2d_array(test_array.addrs);
+        const addrs = test_array.addrs.flat();
+        const state = test_array.state.flat();
+        const addrs_states = addrs.map(function (e, i) { return [e, state[i]]; });
+        for (let i = 0; i < addrs_states.length; i++) {
+          const braille_peg = addrs_states[i];
+          this.peg_state[braille_peg[0]] = true;
+          this.braille_reservation_table[braille_peg[0]] = true;
+        }
+
+        print("test_array.addrs",addrs_states);
+
+        print(this.brailleToLetter(test_array.state));
+      }
+    }
   }
 
   mouseClicked() {
-    let peg_D_obj, peg_A_obj;
-    [peg_D_obj, peg_A_obj] = this.toggle_peg();
-    // Check if peg is in D or A
-    if (peg_A_obj) {
-      let new_peg = true;
-      // Check if peg is already in inserted_pegs
-      // Remove peg if it's already in inserted_pegs
+    let peg_obj;
+    peg_obj = this.toggle_peg();
+    // toggle_peg() updates the peg_state array and returns the peg number and coordinates
+    print("peg_obj", peg_obj);
+    // add letter to letter_sprites
+    if (peg_obj) {
+      let is_new_peg = true;
+      print("inserted pegs", this.inserted_pegs);
+      // Check if the peg is already in the inserted_pegs
+      // Remove Peg if it's already in inserted_pegs
       for (let index = 0; index < this.inserted_pegs.length; index++) {
         const inserted_peg = this.inserted_pegs[index];
-        if (inserted_peg.addr == peg_A_obj["number"]) {
+        if (inserted_peg.addr == peg_obj["number"]) { // if the peg is already in the inserted_pegs
           for (let i = 0; i < this.letter_sprites.length; i++) {
             const sprite = this.letter_sprites[i];
-            if (sprite.addr == inserted_peg.addr) {
+            if (sprite.addr == inserted_peg.addr) { // remove the letter sprite and the peg sprite
               sprite.remove();
+              inserted_peg.remove();
             }
           }
-          inserted_peg.remove();
-          new_peg = false;
+          is_new_peg = false;
         }
+      }
+      if (!is_new_peg) {
         this.update_letters();
       }
-      // Add peg if it didn't pass the above test
-      if (new_peg) {
+      // add peg if it's not already in inserted_pegs
+      if (is_new_peg) {
         // add letter to letter_sprites
-        if (this.active_peg == "?") {
-          this.active_peg = this.current_word[this.correct_to];
-        }
-        //this.load_spelling_sprites}
-        print(this.active_peg,this.correct_to, this.current_word[this.correct_to])
-        this.load_spelling_sprites(this.active_peg, peg_A_obj["number"]);
+        this.load_spelling_sprites(this.active_peg.letter, peg_obj["number"]);
+        print(
+          this.active_peg,
+          this.correct_to,
+          this.current_word[this.correct_to]
+        );
         // add peg to inserted_pegs
         const new_peg = new this.inserted_pegs.Sprite();
-        new_peg.addr = peg_A_obj["number"];
-        new_peg.pos = peg_A_obj["coord"];
+        // add id and location for easy removal
+        new_peg.addr = peg_obj["number"];
+        new_peg.pos = peg_obj["coord"];
+        this.check_answer();
+        this.run_timer = true;
       }
     }
-    this.check_answer();
   }
 }

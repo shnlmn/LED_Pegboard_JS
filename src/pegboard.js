@@ -32,40 +32,34 @@ class Pegboard {
         y_count + this.board_peg_spacing / 2,
       ]);
     }
-
-    ///// designate certain coordinates for Digital and Analog Input
-    this.peg_D_inputs = [];
-    this.peg_A_inputs = [];
+    ///// designate certain coordinates for Digital Input
+    this.peg_inputs = [];
     for (let i = 0; i < this.peg_coords.length; i++) {
-      const v = this.peg_coords[i];
-      if (v[1] > this.board_h * this.input_section + this.peg_spacing) {
-        this.peg_D_inputs.push(v);
-      }
-    }
-    for (let i = 0; i < this.peg_coords.length; i++) {
-      const v = this.peg_coords[i];
-      if (v[1] > 670 && v[1] < 730) {
-        this.peg_A_inputs.push(v);
+      const v = this.peg_coords[i]; // get the coordinates of the peg
+      if (v[1] > this.board_h * this.input_section + this.peg_spacing) {// only make lower half active
+        this.peg_inputs.push(v);
       }
     }
 
     ////// set up state objects to check for active pegs
-    this.peg_D_state = [];
-    this.peg_A_state = [];
+    this.peg_state = [];
+    for (let i = 0; i < this.peg_inputs.length; i++) {
+      this.peg_state.push(false);
+    }
 
-    for (let i = 0; i < this.peg_D_inputs.length; i++) {
-      this.peg_D_state.push(false);
-    }
-    for (let i = 0; i < this.peg_A_inputs.length; i++) {
-      this.peg_A_state.push(false);
-    }
+    /// setup fake sensor array for testing
+    /// in practice, this will come from a controller reading the actual sensors
+    this.sensor_state = [...this.peg_state]
+
+
   }
 
   ///// call preload from sketch.js: Pegboard.preload()
   static preload() {
-    this.backgroundImg = loadImg("./assets/back.jpg");
+    this.backgroundImg = loadImg("../assets/back.jpg");
   }
 
+  ////// reads pixel data from animation and maps the colors to the pegs
   display_pegs() {
     let i = 0;
     while (i < this.peg_coords.length) {
@@ -96,14 +90,14 @@ class Pegboard {
 
   read_sensor_inputs() {
     // Stand-in for actual sensor reading
-    print(this.peg_D_state);
-    return [this.peg_D_state, this.peg_A_state];
+    return this.peg_state;
   }
 
   get_peg_coords() {
     return this.peg_coords;
   }
 
+  ///// see if mouse click happened on a peg, fake the sensor active state
   check_clicked_peg(peg_state, peg_inputs) {
     let peg_number;
     let peg_coord;
@@ -111,14 +105,14 @@ class Pegboard {
     for (let index = 0; index < peg_state.length; index++) {
       const vD = peg_inputs[index];
       // print(vD)
-      const actual_x = mouseX
-      const actual_y = mouseY
+      const actual_x = mouseX;
+      const actual_y = mouseY;
       if (
         Math.abs(actual_x - vD[0]) <= this.board_peg_size / 2 &&
         Math.abs(actual_y - vD[1]) <= this.board_peg_size / 2
       ) {
         print("PEG HIT");
-        peg_state[index] = !peg_state[index];
+        peg_state[index] = !peg_state[index]; /// UPDATE peg_state
         peg_number = index;
         peg_coord = { x: vD[0], y: vD[1] };
         found = true;
@@ -130,40 +124,25 @@ class Pegboard {
       return [false, false];
     }
   }
+
   toggle_peg() {
     ///// takes peg state
-    let peg_D_number,
-      peg_D_coord,
-      peg_A_number,
-      peg_A_coord,
-      peg_D_obj,
-      peg_A_obj;
-    [peg_D_number, peg_D_coord] = this.check_clicked_peg(
-      this.peg_D_state,
-      this.peg_D_inputs,
+    let peg_number, peg_coord, peg_obj;
+    [peg_number, peg_coord] = this.check_clicked_peg( // this gets the peg number and coordinates but also updates the peg_state
+      this.peg_state,
+      this.peg_inputs
     );
-    [peg_A_number, peg_A_coord] = this.check_clicked_peg(
-      this.peg_A_state,
-      this.peg_A_inputs
-    );
-    if (peg_D_number > 0) {
-      peg_D_obj = {
-        number: peg_D_number,
-        coord: peg_D_coord,
+    if (peg_number) {
+      peg_obj = {
+        number: peg_number,
+        coord: peg_coord,
       };
     } else {
-      peg_D_obj = false;
+      peg_obj = false;
     }
-    if (peg_A_number) {
-      peg_A_obj = {
-        number: peg_A_number,
-        coord: peg_A_coord,
-      };
-    } else {
-      peg_A_obj = false;
-    }
+    print(this.peg_state + " " + peg_number + " " + peg_coord)
 
-    return [peg_D_obj, peg_A_obj];
+    return peg_obj;
   }
 
   // mouseClicked(e) {
