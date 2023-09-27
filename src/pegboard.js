@@ -113,7 +113,7 @@ class Pegboard {
     [peg_number, peg_coord] = this.check_clicked_peg(); // this gets the peg number and coordinates but also updates the peg_state
     if (peg_number) {
       peg_obj = {
-        number: peg_number,
+        addr: peg_number,
         coord: peg_coord,
       };
     } else {

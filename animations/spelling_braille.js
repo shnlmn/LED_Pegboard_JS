@@ -239,6 +239,7 @@ class pbAnimation extends Pegboard {
         this.run_timer = false;
         this.peg_state = [...this.sensor_state]; // Once the timer is done, commit sensor state to peg state for animation
         this.search_for_braille_pegs();
+        this.check_answer()
       }
     }
   }
@@ -281,7 +282,11 @@ class pbAnimation extends Pegboard {
         for (let j = -1; j < 2; j++) {
           print(i - j);
           print(i + j, i + this.peg_w + j, i + 2 * this.peg_w + j);
-          test_array.addrs.push([i + j, i + this.peg_w + j, i + 2 * this.peg_w + j]);
+          test_array.addrs.push([
+            i + j,
+            i + this.peg_w + j,
+            i + 2 * this.peg_w + j,
+          ]);
           test_array.state.push([
             this.peg_state[i + j],
             this.peg_state[i + this.peg_w + j],
@@ -344,10 +349,8 @@ class pbAnimation extends Pegboard {
   add_pegs(braille_letter) {
     /// braille_letter = {letter: letter, addrs: test_array.addrs, state: test_array.state }
     // add letter to letter_sprites, addr is upper left peg
-    this.load_spelling_sprites(
-      braille_letter.letter,
-      braille_letter.addrs[0][0]
-    );
+    const letter_key_addr = braille_letter.addrs[0][0];
+    this.load_spelling_sprites(braille_letter.letter, letter_key_addr);
     for (let i = 0; i < braille_letter.addrs.length; i++) {
       for (let j = 0; j < braille_letter.addrs[i].length; j++) {
         const peg = braille_letter.addrs[i][j];
@@ -361,8 +364,9 @@ class pbAnimation extends Pegboard {
         new_peg.addr = peg;
         new_peg.pos = createVector(...this.peg_inputs[peg]);
         new_peg.color = color;
+        new_peg.parent_addr = letter_key_addr;
         print("new peg", new_peg.addr, new_peg.pos);
-        print(this.peg_coords);
+        // print(this.peg_coords);
       }
       const addr = braille_letter.addrs[i];
     }
@@ -371,11 +375,32 @@ class pbAnimation extends Pegboard {
   mouseClicked() {
     let peg_obj;
     peg_obj = this.get_peg_clicked();
-    for (let i = 0; i < this.active_letter.braille.length; i++) {
-      for (let j = 0; j < this.active_letter.braille[i].length; j++) {
-        this.sensor_state[
-          peg_obj["number"] + (i * this.peg_w) + j
-        ] = this.active_letter.braille[i][j];
+    let peg_collision = []; // array of pegs that belong to the letter
+    print(this.inserted_pegs)
+    // read the parent_addr of all the inserted pegs, compare to the peg_obj.addr
+    for (let i = 0; i < this.inserted_pegs.length; i++) {
+      const peg = this.inserted_pegs[i];
+      
+      if (peg.parent_addr == peg_obj.addr) {
+        peg_collision.push(peg);
+      }
+    }
+    if (peg_collision.length > 0) {
+      const letter_sprite = this.letter_sprites.find((obj) => obj.addr == peg_obj.addr)
+      if (letter_sprite){
+        letter_sprite.remove()
+      }
+      for (let i = 0; i < peg_collision.length; i++) {
+        const peg = peg_collision[i];
+        peg.remove();
+      }
+      this.update_letters();
+    } else {
+      for (let i = 0; i < this.active_letter.braille.length; i++) {
+        for (let j = 0; j < this.active_letter.braille[i].length; j++) {
+          this.sensor_state[peg_obj.addr + i * this.peg_w + j] =
+            this.active_letter.braille[i][j];
+        }
       }
     }
   }
